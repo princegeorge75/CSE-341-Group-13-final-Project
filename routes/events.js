@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
-const { verifyToken } = require('../middleware/authT'); // ✅ Import the auth middleware
+const { verifyToken } = require('../middleware/authT'); //  Import the auth middleware
 
 // ✅ Apply verifyToken to all routes below
 router.post('/', verifyToken, eventController.createEvent);        // POST - Create event

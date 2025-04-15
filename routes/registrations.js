@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Registration = require('../models/Registration');
-const { verifyToken } = require('../middleware/authT'); // ✅ Import token middleware
+const { verifyToken } = require('../middleware/authT'); //  Import token middleware
 
 // 1. GET all registrations
 router.get('/', verifyToken, async (req, res) => {
