@@ -7,7 +7,7 @@
     },
     "servers": [
       {
-        "url": "http://localhost:3000",
+        "url": "https://cse-341-group-13-final-project.onrender.com",
         "description": "Development Server"
       }
     ],
