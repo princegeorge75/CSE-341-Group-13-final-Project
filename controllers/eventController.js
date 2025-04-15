@@ -1,70 +1,90 @@
-const Event = require('../models/Event');  // Assuming your Event model is in models/Event.js
+const Event = require('../models/Event');
 
+// Create an event
 exports.createEvent = async (req, res) => {
   try {
-    const { eventName, description, date, time, location } = req.body;
+    const { eventName, description, date, time, location, capacity } = req.body;
 
-    // Ensure the user ID from the token is included in the event
-    const createdBy = req.user.id;  // This is the decoded user ID from the JWT token
+    if (!eventName || !time || !req.user) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
-    // Create a new event with the user's ID as the 'createdBy' field
-    const newEvent = new Event({ eventName, description, date, time, location, createdBy });
+    const newEvent = new Event({
+      eventName,
+      description,
+      date,
+      time,
+      location,
+      capacity,
+      createdBy: req.user.sub || req.user.id
+    });
 
-    // Save the new event to the database
     await newEvent.save();
 
-    // Return the created event as a response
-    res.status(201).json(newEvent);
+    res.status(201).json({
+      message: 'Event created successfully',
+      event: newEvent,
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error creating event', error: err.message });
   }
 };
 
+// Get all events
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.status(200).json(events);
+    const events = await Event.find().populate('createdBy', 'displayName email');
+    res.json(events);
   } catch (err) {
-    res.status(500).json({ message: 'Error retrieving events', error: err.message });
+    res.status(500).json({ message: 'Error fetching events', error: err.message });
   }
 };
 
+// Get a single event by ID
 exports.getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate('createdBy', 'displayName email');
+
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
-    res.status(200).json(event);
+
+    res.json(event);
   } catch (err) {
-    res.status(500).json({ message: 'Error retrieving event', error: err.message });
+    res.status(500).json({ message: 'Error fetching event', error: err.message });
   }
 };
 
+// Update an event
 exports.updateEvent = async (req, res) => {
   try {
-    const { eventName, description, date, time, location } = req.body;
-    const updatedEvent = await Event.findByIdAndUpdate(
+    const updated = await Event.findByIdAndUpdate(
       req.params.id,
-      { eventName, description, date, time, location },
-      { new: true }
+      req.body,
+      { new: true, runValidators: true }
     );
-    if (!updatedEvent) {
+
+    if (!updated) {
       return res.status(404).json({ message: 'Event not found' });
     }
-    res.status(200).json(updatedEvent);
+
+    res.json({ message: 'Event updated successfully', event: updated });
   } catch (err) {
     res.status(500).json({ message: 'Error updating event', error: err.message });
   }
 };
 
+// Delete an event
 exports.deleteEvent = async (req, res) => {
   try {
-    const deletedEvent = await Event.findByIdAndDelete(req.params.id);
-    if (!deletedEvent) {
+    const deleted = await Event.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
       return res.status(404).json({ message: 'Event not found' });
     }
-    res.status(200).json({ message: 'Event deleted successfully' });
+
+    res.json({ message: 'Event deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Error deleting event', error: err.message });
   }

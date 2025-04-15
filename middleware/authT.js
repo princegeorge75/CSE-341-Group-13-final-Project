@@ -1,22 +1,25 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware to protect routes that require a valid JWT
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+exports.verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized: Token missing or malformed' });
+    return res.status(401).json({ message: 'Missing or invalid authorization header' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Decode the JWT using the secret key
-    req.user = decoded;  // Attach the decoded user information to the request object
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'yourSecretKey');
+
+    // Attach the whole decoded payload to req.user
+    req.user = decoded;
+
+    // Optional: log the user
+    console.log("Authenticated user:", req.user);
+
     next();
   } catch (err) {
-    return res.status(403).json({ message: 'Forbidden: Invalid or expired token' });
+    return res.status(401).json({ message: 'Invalid token', error: err.message });
   }
 };
-
-module.exports = { verifyToken };
