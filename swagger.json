@@ -1,281 +1,271 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Event Manager API",
-      "version": "1.0.0",
-      "description": "API documentation for managing events, registrations, RSVPs, and users with Google OAuth2."
-    },
-    "servers": [
-      {
-        "url": "https://cse-341-group-13-final-project.onrender.com",
-        "description": "Development Server"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Event Manager API",
+    "version": "1.0.0",
+    "description": "API documentation for managing events, registrations, RSVPs, and users using Bearer Token Authentication (e.g., Google OAuth2)."
+  },
+  "servers": [
+    {
+      "url": "https://cse-341-group-13-final-project.onrender.com",
+      "description": "Development Server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    { "name": "Users", "description": "User account endpoints" },
+    { "name": "Events", "description": "Operations related to events" },
+    { "name": "Registrations", "description": "Event registration management" },
+    { "name": "RSVPs", "description": "RSVP to events" }
+  ],
+  "paths": {
+    "/users/signup": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "User signup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User created successfully" },
+          "400": { "description": "Bad request" }
+        },
+        "security": []
       }
-    ],
-    "tags": [
-      { "name": "Users", "description": "User account endpoints" },
-      { "name": "Events", "description": "Operations related to events" },
-      { "name": "Registrations", "description": "Event registration management" },
-      { "name": "RSVPs", "description": "RSVP to events" }
-    ],
-    "paths": {
-      "/users/signup": {
-        "post": {
-          "tags": ["Users"],
-          "summary": "User signup",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "User login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "user@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
               }
             }
-          },
-          "responses": {
-            "201": { "description": "User created successfully" },
-            "400": { "description": "Bad request" }
           }
-        }
-      },
-      "/users/login": {
-        "post": {
-          "tags": ["Users"],
-          "summary": "User login",
-          "requestBody": {
-            "required": true,
+        },
+        "responses": {
+          "200": { "description": "Logged in successfully" },
+          "401": { "description": "Invalid credentials" }
+        },
+        "security": []
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get all events",
+        "responses": {
+          "200": {
+            "description": "List of events",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": { "type": "string", "example": "user@example.com" },
-                    "password": { "type": "string", "example": "password123" }
-                  }
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Event" }
                 }
               }
             }
           },
-          "responses": {
-            "200": { "description": "Logged in successfully" },
-            "401": { "description": "Invalid credentials" }
-          }
+          "401": { "description": "Unauthorized" }
         }
       },
-      "/events": {
-        "get": {
-          "tags": ["Events"],
-          "summary": "Get all events",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "responses": {
-            "200": {
-              "description": "List of events",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": { "$ref": "#/components/schemas/Event" }
-                  }
-                }
-              }
-            },
-            "401": { "description": "Unauthorized" }
+      "post": {
+        "tags": ["Events"],
+        "summary": "Create a new event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Event" }
+            }
           }
         },
-        "post": {
-          "tags": ["Events"],
-          "summary": "Create a new event",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Event" }
-              }
-            }
-          },
-          "responses": {
-            "201": { "description": "Event created successfully" },
-            "400": { "description": "Invalid event data" },
-            "401": { "description": "Unauthorized" }
-          }
-        }
-      },
-      "/events/{id}": {
-        "get": {
-          "tags": ["Events"],
-          "summary": "Get event by ID",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": { "type": "string" }
-            }
-          ],
-          "responses": {
-            "200": { "description": "Event found" },
-            "404": { "description": "Event not found" },
-            "401": { "description": "Unauthorized" }
-          }
-        },
-        "put": {
-          "tags": ["Events"],
-          "summary": "Update event by ID",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": { "type": "string" }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Event" }
-              }
-            }
-          },
-          "responses": {
-            "200": { "description": "Event updated" },
-            "400": { "description": "Invalid input" },
-            "404": { "description": "Event not found" },
-            "401": { "description": "Unauthorized" }
-          }
-        },
-        "delete": {
-          "tags": ["Events"],
-          "summary": "Delete event by ID",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": { "type": "string" }
-            }
-          ],
-          "responses": {
-            "204": { "description": "Event deleted" },
-            "404": { "description": "Event not found" },
-            "401": { "description": "Unauthorized" }
-          }
-        }
-      },
-      "/registrations": {
-        "post": {
-          "tags": ["Registrations"],
-          "summary": "Create a registration for an event",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Registration" }
-              }
-            }
-          },
-          "responses": {
-            "201": { "description": "Registration created" },
-            "400": { "description": "Invalid input" },
-            "401": { "description": "Unauthorized" }
-          }
-        }
-      },
-      "/rsvp/{eventId}": {
-        "post": {
-          "tags": ["RSVPs"],
-          "summary": "RSVP to an event",
-          "security": [{ "googleOAuth": ["openid", "email", "profile"] }],
-          "parameters": [
-            {
-              "name": "eventId",
-              "in": "path",
-              "required": true,
-              "schema": { "type": "string" }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Rsvp" }
-              }
-            }
-          },
-          "responses": {
-            "201": { "description": "RSVP recorded" },
-            "400": { "description": "Invalid data" },
-            "404": { "description": "Event not found" },
-            "401": { "description": "Unauthorized" }
-          }
+        "responses": {
+          "201": { "description": "Event created successfully" },
+          "400": { "description": "Invalid event data" },
+          "401": { "description": "Unauthorized" }
         }
       }
     },
-    "components": {
-      "securitySchemes": {
-        "googleOAuth": {
-          "type": "oauth2",
-          "flows": {
-            "authorizationCode": {
-              "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
-              "tokenUrl": "https://oauth2.googleapis.com/token",
-              "scopes": {
-                "openid": "Authenticate using Google",
-                "email": "Access your email",
-                "profile": "Access your basic profile"
-              }
-            }
+    "/events/{id}": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get event by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
+        ],
+        "responses": {
+          "200": { "description": "Event found" },
+          "404": { "description": "Event not found" },
+          "401": { "description": "Unauthorized" }
         }
       },
-      "schemas": {
-        "User": {
-          "type": "object",
-          "required": ["name", "email", "password"],
-          "properties": {
-            "name": { "type": "string", "example": "John Doe" },
-            "email": { "type": "string", "example": "john@example.com" },
-            "password": { "type": "string", "example": "Password123!" }
+      "put": {
+        "tags": ["Events"],
+        "summary": "Update event by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Event" }
+            }
           }
         },
-        "Event": {
-          "type": "object",
-          "required": ["title", "description", "date", "location"],
-          "properties": {
-            "title": { "type": "string", "example": "Tech Conference" },
-            "description": { "type": "string", "example": "Annual tech event" },
-            "date": { "type": "string", "format": "date-time", "example": "2025-05-01T10:00:00Z" },
-            "location": { "type": "string", "example": "Lagos, Nigeria" },
-            "organizer": { "type": "string", "example": "TechHub NG" },
-            "capacity": { "type": "integer", "example": 100 }
+        "responses": {
+          "200": { "description": "Event updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Event not found" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Events"],
+        "summary": "Delete event by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Event deleted" },
+          "404": { "description": "Event not found" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/registrations": {
+      "post": {
+        "tags": ["Registrations"],
+        "summary": "Create a registration for an event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Registration" }
+            }
           }
         },
-        "Registration": {
-          "type": "object",
-          "required": ["eventId", "userId"],
-          "properties": {
-            "eventId": { "type": "string", "example": "65af3c0bdcf72c1e449cf456" },
-            "userId": { "type": "string", "example": "65aeaf9acbca3194fe4a409b" }
+        "responses": {
+          "201": { "description": "Registration created" },
+          "400": { "description": "Invalid input" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/rsvp/{eventId}": {
+      "post": {
+        "tags": ["RSVPs"],
+        "summary": "RSVP to an event",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Rsvp" }
+            }
           }
         },
-        "Rsvp": {
-          "type": "object",
-          "required": ["userId", "response"],
-          "properties": {
-            "userId": { "type": "string", "example": "65aeaf9acbca3194fe4a409b" },
-            "response": { "type": "string", "enum": ["yes", "no", "maybe"], "example": "yes" }
-          }
-        },
-        "ErrorResponse": {
-          "type": "object",
-          "properties": {
-            "error": { "type": "string", "example": "Something went wrong" }
-          }
+        "responses": {
+          "201": { "description": "RSVP recorded" },
+          "400": { "description": "Invalid data" },
+          "404": { "description": "Event not found" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "example": "john@example.com" },
+          "password": { "type": "string", "example": "Password123!" }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "required": ["title", "description", "date", "location"],
+        "properties": {
+          "title": { "type": "string", "example": "Tech Conference" },
+          "description": { "type": "string", "example": "Annual tech event" },
+          "date": { "type": "string", "format": "date-time", "example": "2025-05-01T10:00:00Z" },
+          "location": { "type": "string", "example": "Lagos, Nigeria" },
+          "organizer": { "type": "string", "example": "TechHub NG" },
+          "capacity": { "type": "integer", "example": 100 }
+        }
+      },
+      "Registration": {
+        "type": "object",
+        "required": ["eventId", "userId"],
+        "properties": {
+          "eventId": { "type": "string", "example": "65af3c0bdcf72c1e449cf456" },
+          "userId": { "type": "string", "example": "65aeaf9acbca3194fe4a409b" }
+        }
+      },
+      "Rsvp": {
+        "type": "object",
+        "required": ["userId", "response"],
+        "properties": {
+          "userId": { "type": "string", "example": "65aeaf9acbca3194fe4a409b" },
+          "response": { "type": "string", "enum": ["yes", "no", "maybe"], "example": "yes" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "example": "Something went wrong" }
         }
       }
     }
   }
-  
+}
