@@ -1,10 +1,10 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
-// This is your route middleware for the OAuth handshake
+// OAuth handshake
 const googleAuth = passport.authenticate('google', { scope: ['profile', 'email'], session: false });
 
-// This is your Google OAuth callback handler
+// Google OAuth callback
 const googleCallback = (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: 'Authentication failed' });
@@ -12,12 +12,12 @@ const googleCallback = (req, res) => {
 
   const token = jwt.sign(
     {
-      googleId: req.user.id, // from profile.id
+      googleId: req.user.id,
       displayName: req.user.displayName,
       email: req.user.emails[0].value,
     },
     process.env.JWT_SECRET,
-    { expiresIn: '10m' } // Token valid for 10 minutes as you wanted
+    { expiresIn: '10m' }
   );
 
   res.json({
@@ -31,7 +31,7 @@ const googleCallback = (req, res) => {
   });
 };
 
-// Middleware to protect routes that require a valid JWT
+// Middleware to protect JWT routes
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -43,7 +43,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user data to the request
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Forbidden: Invalid or expired token' });

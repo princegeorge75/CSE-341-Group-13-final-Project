@@ -3,8 +3,15 @@ const Event = require('../models/Event');
 // Create a new event
 exports.createEvent = async (req, res) => {
   try {
-    const { title, description, date, location, maxAttendees } = req.body;
-    const newEvent = new Event({ title, description, date, location, maxAttendees });
+    const { eventName, description, date, time, location } = req.body;
+    const newEvent = new Event({
+      eventName,
+      description,
+      date,
+      time,
+      location,
+      createdBy: req.user.googleId || req.user._id,
+    });
     await newEvent.save();
     res.status(201).json(newEvent);
   } catch (err) {
