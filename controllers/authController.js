@@ -1,11 +1,11 @@
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // Signup
 const signup = async (req, res) => {
   const { email, password, role } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcryptjs.hash(password, 10);
 
   const newUser = new User({ email, password: hashedPassword, role });
   await newUser.save();
@@ -22,7 +22,7 @@ const login = async (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  const validPassword = await bcrypt.compare(password, user.password);
+  const validPassword = await bcryptjs.compare(password, user.password);
 
   if (!validPassword) {
     return res.status(400).json({ message: 'Invalid password' });
