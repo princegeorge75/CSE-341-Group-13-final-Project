@@ -8,7 +8,7 @@
   "servers": [
     {
       "url": "https://cse-341-group-13-final-project.onrender.com",
-      "description": "Development Server"
+      "description": "Render Deployment"
     }
   ],
   "security": [
@@ -71,6 +71,7 @@
       "get": {
         "tags": ["Events"],
         "summary": "Get all events",
+        "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": {
             "description": "List of events",
@@ -89,6 +90,7 @@
       "post": {
         "tags": ["Events"],
         "summary": "Create a new event",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -108,6 +110,7 @@
       "get": {
         "tags": ["Events"],
         "summary": "Get event by ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
@@ -125,6 +128,7 @@
       "put": {
         "tags": ["Events"],
         "summary": "Update event by ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
@@ -151,6 +155,7 @@
       "delete": {
         "tags": ["Events"],
         "summary": "Delete event by ID",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
@@ -170,6 +175,7 @@
       "post": {
         "tags": ["Registrations"],
         "summary": "Create a registration for an event",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -189,6 +195,7 @@
       "post": {
         "tags": ["RSVPs"],
         "summary": "RSVP to an event",
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "eventId",
@@ -234,13 +241,13 @@
       },
       "Event": {
         "type": "object",
-        "required": ["title", "description", "date", "location"],
+        "required": ["eventName", "description", "date", "time", "location"],
         "properties": {
-          "title": { "type": "string", "example": "Tech Conference" },
+          "eventName": { "type": "string", "example": "Tech Conference" },
           "description": { "type": "string", "example": "Annual tech event" },
           "date": { "type": "string", "format": "date-time", "example": "2025-05-01T10:00:00Z" },
+          "time": { "type": "string", "example": "10:00 AM" },
           "location": { "type": "string", "example": "Lagos, Nigeria" },
-          "organizer": { "type": "string", "example": "TechHub NG" },
           "capacity": { "type": "integer", "example": 100 }
         }
       },
@@ -258,12 +265,6 @@
         "properties": {
           "userId": { "type": "string", "example": "65aeaf9acbca3194fe4a409b" },
           "response": { "type": "string", "enum": ["yes", "no", "maybe"], "example": "yes" }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "error": { "type": "string", "example": "Something went wrong" }
         }
       }
     }
