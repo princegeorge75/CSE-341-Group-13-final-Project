@@ -10,13 +10,17 @@ exports.verifyToken = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
+    // Log the token received in the header
+    console.log("Token received:", token);
+
+    // Decode the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'yourSecretKey');
 
-    // Attach the whole decoded payload to req.user
-    req.user = decoded;
+    // Log the decoded token
+    console.log("Decoded user:", decoded);
 
-    // Optional: log the user
-    console.log("Authenticated user:", req.user);
+    // Attach the decoded user info to req.user
+    req.user = decoded;
 
     next();
   } catch (err) {
