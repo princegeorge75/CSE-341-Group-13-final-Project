@@ -11,6 +11,7 @@ const eventSchema = new mongoose.Schema({
     ref: 'User', 
     required: true 
   },
+  capacity: { type: Number, required: false },  // Added capacity
   createdAt: { type: Date, default: Date.now }
 });
 

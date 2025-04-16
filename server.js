@@ -9,10 +9,11 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json'); // Import swagger documentation
 
 // Import Routes
-const authRoutes = require('./routes/auth'); // Authentication routes
+const authRoutes = require('./routes/auth'); // Google Authentication routes
 const eventRoutes = require('./routes/events'); // Event routes
 const registrationRoutes = require('./routes/registrations'); // Registration routes
 const rsvpRoutes = require('./routes/rsvp'); // RSVP routes
+const userRoutes = require('./routes/users'); // ✅ Manual signup/login routes
 
 // Initialize environment variables
 dotenv.config();  // Load environment variables from .env file
@@ -46,10 +47,11 @@ require('./config/passport');  // Passport config file for OAuth
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // Access Swagger docs at /api-docs
 
 // Routes
-app.use('/auth', authRoutes);  // Authentication routes (Signup/Login)
+app.use('/auth', authRoutes);  // Google OAuth Authentication
 app.use('/events', eventRoutes);  // Event routes
 app.use('/registrations', registrationRoutes);  // Registration routes
 app.use('/rsvp', rsvpRoutes);  // RSVP routes
+app.use('/users', userRoutes);  // ✅ Manual signup/login routes
 
 // Default route
 app.get('/', (req, res) => res.send("Welcome to Event Manager API"));
