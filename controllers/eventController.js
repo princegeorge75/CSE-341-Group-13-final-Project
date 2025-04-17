@@ -4,6 +4,9 @@ const Event = require('../models/Event');
 // Create an event
 exports.createEvent = async (req, res) => {
   try {
+    // Log the user object to verify the ID
+    console.log("Authenticated user:", req.user);
+
     const newEvent = await Event.create({
       eventName: req.body.eventName,
       description: req.body.description,
@@ -11,8 +14,7 @@ exports.createEvent = async (req, res) => {
       time: req.body.time,
       location: req.body.location,
       capacity: req.body.capacity,
-      // Ensure that createdBy is set correctly based on the token or fallback to req.body.createdBy
-      createdBy: req.user?.id || req.body.createdBy || null, // Use req.user.id from token or fallback to req.body.createdBy
+      createdBy: req.user?.id || req.body.createdBy || null, // Ensure createdBy is set correctly
     });
 
     res.status(201).json(newEvent);
@@ -21,6 +23,7 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: 'Failed to create event', error: err.message });
   }
 };
+
 
 
 
