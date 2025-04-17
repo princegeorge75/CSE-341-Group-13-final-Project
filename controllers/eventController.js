@@ -4,9 +4,11 @@ const Event = require('../models/Event');
 // Create an event
 exports.createEvent = async (req, res) => {
   try {
-    console.log("User in request:", req.user); // ✅ Check if req.user exists and has id
+    console.log("User in request:", req.user);
 
-    if (!req.user || !req.user.id) {
+    const userId = req.user?.sub;
+
+    if (!userId) {
       return res.status(400).json({ message: 'User not authenticated properly' });
     }
 
@@ -17,7 +19,7 @@ exports.createEvent = async (req, res) => {
       time: req.body.time,
       location: req.body.location,
       capacity: req.body.capacity,
-      createdBy: req.user.id, // ✅ This must be a valid ObjectId
+      createdBy: userId
     });
 
     res.status(201).json(newEvent);
@@ -26,6 +28,7 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: 'Failed to create event', error: err.message });
   }
 };
+
 
 
 // Get all events
