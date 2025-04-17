@@ -1,15 +1,13 @@
 // Import necessary models
 const Event = require('../models/Event');
 
-// Create an event
+// Create an Event
+const mongoose = require('mongoose');
+
 exports.createEvent = async (req, res) => {
   try {
-    console.log("User in request:", req.user);
-
-    const userId = req.user?.sub;
-
-    if (!userId) {
-      return res.status(400).json({ message: 'User not authenticated properly' });
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(401).json({ message: 'Invalid user ID in token' });
     }
 
     const newEvent = await Event.create({
@@ -19,7 +17,7 @@ exports.createEvent = async (req, res) => {
       time: req.body.time,
       location: req.body.location,
       capacity: req.body.capacity,
-      createdBy: userId
+      createdBy: req.user.id, // ✅ This should now be a valid ObjectId string
     });
 
     res.status(201).json(newEvent);
@@ -28,7 +26,6 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: 'Failed to create event', error: err.message });
   }
 };
-
 
 
 // Get all events
