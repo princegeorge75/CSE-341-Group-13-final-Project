@@ -1,25 +1,36 @@
 const mongoose = require('mongoose');
 const bcryptjs = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: function() {
-      return !this.googleId;
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true
+    },
+    password: {
+      type: String,
+      required: function () {
+        return !this.googleId; // Only required if it's not a Google user
+      }
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true // allows multiple users without googleId
+    },
+    name: {
+      type: String
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user'
     }
   },
-  googleId: {
-    type: String,
-    default: null
-  },
-  displayName: String,
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
@@ -29,7 +40,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Compare password
+// Compare password method
 userSchema.methods.comparePassword = function (password) {
   return bcryptjs.compare(password, this.password);
 };

@@ -1,39 +1,41 @@
-const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// Signup
-const signup = async (req, res) => {
-  const { email, password, role } = req.body;
-  const hashedPassword = await bcryptjs.hash(password, 10);
+// Handle login via Google (after frontend gets token from Google)
+const googleLogin = async (req, res) => {
+  const { googleId, email, name, role } = req.body;
 
-  const newUser = new User({ email, password: hashedPassword, role });
-  await newUser.save();
-
-  res.status(201).json({ message: 'User created successfully' });
-};
-
-// Login
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+  if (!googleId || !email) {
+    return res.status(400).json({ message: 'Missing googleId or email' });
   }
 
-  const validPassword = await bcryptjs.compare(password, user.password);
+  try {
+    // Check if user exists
+    let user = await User.findOne({ googleId });
 
-  if (!validPassword) {
-    return res.status(400).json({ message: 'Invalid password' });
+    // If not, create the user
+    if (!user) {
+      user = new User({
+        googleId,
+        email,
+        name,
+        role: role || 'user', // default role
+      });
+      await user.save();
+    }
+
+    // Generate JWT with MongoDB _id, not Google sub
+    const token = jwt.sign(
+      { userId: user._id.toString(), role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ message: 'Authentication successful', token });
+  } catch (err) {
+    console.error('Google login error:', err);
+    res.status(500).json({ message: 'Login failed', error: err.message });
   }
-
-  const token = jwt.sign(
-    { userId: user._id.toString(), role: user.role }, // use _id
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' }
-  );
-  
-  res.json({ token });
 };
 
+module.exports = { googleLogin };
