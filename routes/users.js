@@ -47,4 +47,12 @@ router.post('/login', async (req, res) => {
   }
 });
 
+//test route
+const USer = require('../models/user');
+
+router.get('/users', async (req, res) => {
+  const users = await User.find();
+  res.json(users);
+});
+
 module.exports = router;
